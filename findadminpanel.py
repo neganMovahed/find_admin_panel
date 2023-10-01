@@ -1,27 +1,26 @@
 import requests
 from colorama import Fore
+import urllib
 
 def finder_admin():
     try:
-        url = input('Enter Your Target Site: ')
+        domain = input('Enter Your Target Site: ')
         subs = []
         with open("subs.txt", "r") as file:
             lines = file.readlines()
             for line in lines:
                 subs.append(line.strip())
 
-        if url[-1] != '/':
-            url = f"{url}/"
-
         result = ""
         count = 0
-        for link in subs:
+        for path in subs:
             count += 1
-            response = requests.get(url + link)
+            url = urllib.parse.urljoin(domain, path)
+            response = requests.head(url, allow_redirects=True)
 
             if response.status_code == 200:
-                print(Fore.GREEN + "[+] " + url + link + " Found")
-                result = link
+                print(Fore.GREEN + "[+] " + url + " Found")
+                result = url
                 break
 
             if count > 10:
@@ -29,8 +28,10 @@ def finder_admin():
                 print("10 subs checked but not found...")
 
         print("------------------")
-        print(f"This is the URL of the Admin panel: {url}{result}")
-    except:
+        print(f"This is the URL of the Admin panel: {url}")
+
+    except Exception as e:
+        print(e)
         print("Error!")
 
 finder_admin()
